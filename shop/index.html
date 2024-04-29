@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>商城</title>
+</head>
+<body>
+    <h1>商城</h1>
+    <div id="productPage">
+        <h2>商品</h2>
+        <div id="productContainer">
+            <!--   商品demo     -->
+<!--            <div>-->
+<!--                <img src="img/aoteman1.jpg" alt="奥特曼1" width="100px">-->
+<!--                <div>-->
+<!--                    <span>奥特曼1号</span>-->
+<!--                    <span>:</span>-->
+<!--                    <span>15元</span>-->
+<!--                </div>-->
+<!--                <div>-->
+<!--                    <button onclick="sub(1)">-</button>-->
+<!--                    <span id="num_1">0</span>-->
+<!--                    <button onclick="add(1)">+</button>-->
+<!--                </div>-->
+<!--            </div>-->
+        </div>
+        <div id="cartButtonContainer">
+            <button style="background-color:red;border-radius: 10px;border:none;padding: 10px 20px" onclick="showCartPage()">购物车</button>
+        </div>
+    </div>
+
+    <div id="cartPage" style="display: none">
+        <h2>购物车</h2>
+        <div>
+            <table >
+                <thead>
+                    <tr>
+                        <th>商品名称</th>
+                        <th width="120px">图片</th>
+                        <th>销售价</th>
+                        <th>个数</th>
+                    </tr>
+                </thead>
+                <tbody id="cartItemTable">
+<!--                    <tr>-->
+<!--                        <td>奥特曼1号</td>-->
+<!--                        <td><img src="img/aoteman1.jpg" alt="奥特曼1" width="100px"></td>-->
+<!--                        <td>15元</td>-->
+<!--                        <td>1</td>-->
+<!--                    </tr>-->
+                </tbody>
+            </table>
+        </div>
+        <div >
+            <button style="background-color:red;border-radius: 10px;border:none;padding: 10px 20px" onclick="placeOrder()">下单</button>
+        </div>
+    </div>
+    <script >
+        const PRODUCT_LIST = [
+            {
+                id : 1,
+                name : '奥特曼1号',
+                img : 'aoteman1.jpg',
+                salePrice: 15
+            },
+            {
+                id : 2,
+                name : '奥特曼2号',
+                img : 'aoteman2.jpg',
+                salePrice: 25
+            },
+            {
+                id : 3,
+                name : '奥特曼3号',
+                img : 'aoteman3.jpg',
+                salePrice: 150
+            },
+            {
+                id : 4,
+                name : '米露',
+                img : 'milu.jpg',
+                salePrice: 60
+            },
+            {
+                id : 5,
+                name : '擀面皮',
+                img : 'ganmianpi.avif',
+                salePrice: 25
+            },
+        ]
+
+        // let cartList = [{
+        //     productId: 1,
+        //     num: 2
+        // }];
+        let cartList = [];
+
+        // cartItems = {
+        //     name: string,
+        //     img: string,
+        //     costPrice: number, // 成本价
+        //     salePrice: number, //销售价
+        //     num: number, // 个数
+        // }
+        let cartItems = []
+
+
+        function showProductList(){
+            const productContainer = document.getElementById('productContainer');
+            for (let i = 0; i < PRODUCT_LIST.length; i++) {
+                const product = PRODUCT_LIST[i];
+                const div = document.createElement('div');
+                div.innerHTML = `
+                <img src="img/${product.img}" alt="${product.name}" width="100px">
+                <div>
+                    <span>${product.name}</span>
+                    <span>:</span>
+                    <span>${product.salePrice}元</span>
+                </div>
+                <div>
+                    <button onclick="sub(${product.id})">-</button>
+                    <span id="num_${product.id}">0</span>
+                    <button onclick="add(${product.id})">+</button>
+                </div>
+            `;
+                productContainer.appendChild(div);
+            }
+        }
+
+        function sub(id){
+            let num = document.getElementById('num_' + id);
+            let currentNum = parseInt(num.innerText);
+            if(currentNum <= 0){
+                alert('数量不能小于0');
+                return;
+            }
+            let newNum = currentNum - 1;
+            num.innerText = newNum;
+
+            // 数据更改
+            let existCartProductIndex = cartList.findIndex((value) => {
+                return value.productId == id
+            });
+            if(cartList[existCartProductIndex].num > 1){
+                cartList[existCartProductIndex].num = newNum;
+            }else {
+                // 删除元素
+                cartList.splice(existCartProductIndex, 1);
+            }
+        }
+
+        function add(id){
+            // 页面更改
+            let num = document.getElementById('num_' + id);
+            let newNum = parseInt(num.innerText) + 1;
+            num.innerText = newNum;
+
+            // 数据更改
+            let existCartProduct = cartList.find((value) => {
+                return value.productId == id
+            });
+            if(existCartProduct){
+                existCartProduct.num = newNum;
+            }else {
+                cartList.push({
+                    productId : id,
+                    num: newNum
+                })
+            }
+        }
+
+        function showCartPage(){
+            // 隐藏商品页面,显示购物车页面
+            document.getElementById('productPage').style.display = 'none';
+            document.getElementById('cartPage').style.display = 'block';
+
+            // 将cartList转换成cartItems
+            cartList.forEach(cart => {
+                cartItem ={
+                    productId: cart.productId,
+                    num: cart.num
+                }
+                const product = PRODUCT_LIST.find((value) => value.id == cart.productId);
+                cartItem.name = product.name;
+                cartItem.img = product.img;
+                cartItem.salePrice = product.salePrice;
+                cartItems.push(cartItem);
+            })
+
+            // cartItemTable 添加数据
+            const cartItemTable = document.getElementById('cartItemTable');
+            cartItems.forEach(cartItem => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${cartItem.name}</td>
+                    <td><img src="img/${cartItem.img}" alt="${cartItem.name}" width="100px"></td>
+                    <td>${cartItem.salePrice}元</td>
+                    <td>${cartItem.num}</td>
+                `;
+                cartItemTable.appendChild(tr);
+            });
+            // cartList 清空
+            cartList.length = 0;
+
+            // 清空productContainer元素
+            const productContainer = document.getElementById('productContainer');
+            productContainer.innerHTML = '';
+        }
+
+        function placeOrder(){
+            alert("下单成功")
+            // 清空购物车列表
+            cartItems.length = 0;
+            document.getElementById('cartItemTable').innerHTML = '';
+
+            // 显示商品，隐藏购物车，重新开始选购商品下单
+            document.getElementById('productPage').style.display = 'block';
+            showProductList();
+            document.getElementById('cartPage').style.display = 'none';
+        }
+
+        // 页面初始化，展示商品列表
+        showProductList();
+    </script>
+    <style>
+        #productContainer {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        #productContainer > div {
+            flex-basis: 50%;
+        }
+
+        #cartButtonContainer {
+            position: fixed;
+            right: 20%;
+            bottom: 70%;
+        }
+    </style>
+</body>
+</html>

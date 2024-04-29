@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>登录</title>
+</head>
+<body>
+    <h1>登录</h1>
+    <form id="loginForm" method="post">
+        <label for="username">用户名：</label>
+        <input type="text" name="username" id="username">
+        <br>
+        <label for="password">密码：</label>
+        <input type="password" name="password" id="password">
+        <br>
+        <input type="submit" value="登录">
+    </form>
+    <script>
+        document.getElementById("loginForm").onsubmit = function() {
+            var username = document.getElementById("username").value;
+            var password = document.getElementById("password").value;
+            if (username === "admin" && password === "123456") {
+                alert("登录成功");
+                window.location.href = "index.html";
+            } else {
+                alert("登录失败");
+            }
+            return false;
+        };
+    </script>
+</body>
+</html>
